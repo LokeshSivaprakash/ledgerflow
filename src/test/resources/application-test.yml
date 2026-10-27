@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: ${TEST_DB_URL:jdbc:postgresql://localhost:5432/ledgerflow_test}
+    username: ${TEST_DB_USER:postgres}
+    password: ${TEST_DB_PASSWORD:postgres}
+
+ledger:
+  dev-token-endpoint: true
+  outbox:
+    # Keep the scheduler idle so tests drive publishing explicitly.
+    initial-delay-ms: 3600000
+    poll-ms: 3600000

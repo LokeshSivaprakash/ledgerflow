@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: ledgerflow
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      acks: all
+      properties:
+        enable.idempotence: true
+        delivery.timeout.ms: 15000
+        request.timeout.ms: 5000
+        max.block.ms: 5000
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/ledgerflow}
+    username: ${DB_USER:ledger}
+    password: ${DB_PASSWORD:ledger}
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+  jackson:
+    default-property-inclusion: non_null
+
+server:
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+ledger:
+  # HS256 signing secret, at least 32 bytes. Override with LEDGER_JWT_SECRET outside local development.
+  jwt:
+    secret: ${LEDGER_JWT_SECRET:local-dev-only-secret-change-me-0123456789}
+    ttl: PT1H
+  # Issues tokens for anyone. Local development only; keep false anywhere else.
+  dev-token-endpoint: ${LEDGER_DEV_TOKEN_ENDPOINT:false}
+  events:
+    # logging (default) writes events to the application log; kafka publishes them to the topic below.
+    publisher: ${LEDGER_EVENTS_PUBLISHER:logging}
+    topic: ledger.transactions
+  outbox:
+    initial-delay-ms: 1000
+    poll-ms: 1000
